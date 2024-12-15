@@ -1,4 +1,4 @@
 export type Config = {
-  DATABASE_USER: string
-  DATABASE_PASSWORD: string
+  DB_URL: string
+  JWT_SECRET: string
 }

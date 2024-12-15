@@ -1,0 +1,106 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Anime {
+  banner: String
+  description: String
+  englishTitle: [String!]!
+  episodes: AnimeEpisode!
+  genres: [AnimeGenre!]!
+  id: Int!
+  japanTitles: [String!]!
+  link: String!
+  minimalAge: Int!
+  otherTitles: [String!]!
+  poster: String!
+  rating: Int
+  ratingMpa: String!
+  release: DateTime!
+  reviews: AnimeReview!
+  season: AnimeSeason!
+  status: AnimeStatus!
+  studios: [AnimeStudio!]!
+  synonyms: [String!]!
+  title: String!
+  type: AnimeType!
+}
+
+type AnimeEpisode {
+  description: String
+  id: Int!
+  image: String
+  name: String!
+  translations: EpisodeTranslation!
+}
+
+type AnimeGenre {
+  id: Int!
+  image: String!
+  name: String!
+}
+
+type AnimeReview {
+  comment: String
+  id: Int!
+  rating: Int!
+  verified: Boolean!
+}
+
+enum AnimeSeason {
+  FALL
+  SPRING
+  SUMMER
+  WINTER
+}
+
+enum AnimeStatus {
+  RELEASED
+}
+
+type AnimeStudio {
+  id: Int!
+  name: String!
+}
+
+enum AnimeType {
+  MOVIE
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type EpisodeTranslation {
+  description: String
+  id: Int!
+  image: String
+  name: String
+}
+
+type Query {
+  anime(link: String!): Anime!
+  episode: AnimeEpisode!
+  genre: AnimeGenre!
+  genres: [AnimeGenre!]!
+  user(id: Float!): User!
+}
+
+enum Role {
+  ADMIN
+  DEVELOPER
+  MODERATOR
+  USER
+}
+
+type User {
+  avatar: String
+  banner: String
+  birthday: DateTime
+  email: String!
+  id: Int!
+  login: String
+  name: String!
+  role: Role!
+}

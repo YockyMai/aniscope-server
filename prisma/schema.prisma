@@ -8,10 +8,186 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// USER MODELS
+enum Role {
+  USER
+  DEVELOPER
+  MODERATOR
+  ADMIN
+
+  @@map("role")
+}
+
 model User {
-  id     Int     @id @default(autoincrement())
-  name   String
-  banner String
-  avatar String
-  link   String?
+  id       Int           @id @default(autoincrement())
+  name     String
+  email    String        @unique
+  password String
+  banner   String?
+  avatar   String?
+  birthday DateTime?
+  login    String?       @unique
+  role     Role          @default(USER)
+  reviews  AnimeReview[]
+
+  @@map("user")
+}
+
+// ANIME MODELS
+enum AnimeType {
+  MOVIE
+
+  @@map("anime_type")
+}
+
+enum AnimeStatus {
+  RELEASED
+
+  @@map("anime_status")
+}
+
+enum AnimeSeason {
+  SUMMER
+  WINTER
+  SPRING
+  FALL
+
+  @@map("anime_season")
+}
+
+enum AnimeVideoType {
+  TRAILER
+  OPENING
+  ENDING
+  OTHER
+
+  @@map("anime_video_type")
+}
+
+model Anime {
+  id           Int           @id @default(autoincrement())
+  title        String
+  link         String        @unique
+  poster       String
+  banner       String?
+  type         AnimeType
+  ratingMpa    String        @map("rating_mpa")
+  minimalAge   Int           @map("minimal_age")
+  status       AnimeStatus
+  season       AnimeSeason
+  rating       Int?
+  description  String?
+  otherTitles  String[]      @map("other_titles")
+  englishTitle String[]      @map("english_titles")
+  japanTitles  String[]      @map("japan_titles")
+  synonyms     String[]
+  studios      AnimeStudio[]
+  genres       AnimeGenre[]
+  reviews      AnimeReview[]
+  release      DateTime
+  episodes     Episode[]
+  videos       AnimeVideo[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("anime")
+}
+
+model Studio {
+  id    Int           @id @default(autoincrement())
+  name  String
+  anime AnimeStudio[]
+
+  @@map("studio")
+}
+
+model AnimeStudio {
+  animeId  Int
+  studioId Int
+
+  anime  Anime  @relation(fields: [animeId], references: [id])
+  studio Studio @relation(fields: [studioId], references: [id])
+
+  @@id([animeId, studioId])
+  @@map("anime_studio")
+}
+
+model Genre {
+  id         Int          @id @default(autoincrement())
+  name       String
+  image      String
+  AnimeGenre AnimeGenre[]
+
+  @@map("genre")
+}
+
+model AnimeGenre {
+  animeId Int
+  genreId Int
+
+  anime Anime @relation(fields: [animeId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@id([animeId, genreId])
+  @@map("anime_genre")
+}
+
+model AnimeReview {
+  id       Int     @id @default(autoincrement())
+  rating   Int
+  comment  String?
+  verified Boolean @default(false)
+
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+  anime   Anime? @relation(fields: [animeId], references: [id])
+  animeId Int?
+
+  @@map("anime_review")
+}
+
+model Episode {
+  id           Int                  @id @default(autoincrement())
+  name         String?
+  description  String?
+  image        String?
+  translations EpisodeTranslation[]
+  anime        Anime?               @relation(fields: [animeId], references: [id])
+  animeId      Int?
+
+  @@map("episode")
+}
+
+model Translation {
+  id     Int    @id @default(autoincrement())
+  studio String
+
+  episodeTranslation EpisodeTranslation[]
+
+  @@map("translation")
+}
+
+model EpisodeTranslation {
+  episodeId     Int
+  translationId Int
+
+  episode     Episode     @relation(fields: [episodeId], references: [id])
+  translation Translation @relation(fields: [translationId], references: [id])
+
+  @@id([episodeId, translationId])
+  @@map("episode_translation")
+}
+
+model AnimeVideo {
+  id    Int            @id @default(autoincrement())
+  type  AnimeVideoType @default(OTHER)
+  image String
+  name  String
+  url   String
+
+  anime   Anime? @relation(fields: [animeId], references: [id])
+  animeId Int?
+
+  @@map("anime_video")
 }

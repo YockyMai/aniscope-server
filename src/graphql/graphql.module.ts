@@ -1,19 +1,21 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { Module } from '@nestjs/common'
+import { GraphQLModule } from '@nestjs/graphql'
+import { join } from 'path'
 
-import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
+import './graphql.enums'
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: true,
-      typePaths: [join(process.cwd(), 'src/**/*.gql')],
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
       definitions: {
-        path: join(process.cwd(), 'src/graphql.ts'),
-      },
-    }),
+        path: join(process.cwd(), 'src/graphql.ts')
+      }
+    })
   ]
 })
 export class GraphqlModule {}

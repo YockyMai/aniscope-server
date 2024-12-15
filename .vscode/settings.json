@@ -1,5 +1,12 @@
 {
-  "cSpell.words": ["aniscope", "autoincrement", "nestjs", "trivago"],
+  "cSpell.words": [
+    "aniscope",
+    "autoincrement",
+    "datasource",
+    "nestjs",
+    "QLISO",
+    "trivago"
+  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
