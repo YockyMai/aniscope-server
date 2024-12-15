@@ -6,7 +6,7 @@ export class AnimeEpisode {
   @Field(() => Int)
   id: number
 
-  @Field(() => String)
+  @Field()
   name: string
 
   @Field({ nullable: true })

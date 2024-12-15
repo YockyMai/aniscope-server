@@ -5,6 +5,6 @@ export class AnimeStudio {
   @Field(() => Int)
   id: number
 
-  @Field(() => String)
+  @Field()
   name: string
 }

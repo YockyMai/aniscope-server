@@ -10,13 +10,13 @@ export class Anime {
   @Field(() => Int)
   id: number
 
-  @Field(() => String)
+  @Field()
   title: string
 
-  @Field(() => String)
+  @Field()
   link: string
 
-  @Field(() => String)
+  @Field()
   poster: string
 
   @Field({ nullable: true })
@@ -25,7 +25,7 @@ export class Anime {
   @Field(() => AnimeType)
   type: AnimeType
 
-  @Field(() => String)
+  @Field()
   ratingMpa: string
 
   @Field(() => Int)

@@ -6,10 +6,10 @@ export class User {
   @Field(() => Int)
   id: number
 
-  @Field(() => String)
+  @Field()
   name: string
 
-  @Field(() => String)
+  @Field()
   email: string
 
   @Field(() => String, { nullable: true })
