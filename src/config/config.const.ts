@@ -1,0 +1,5 @@
+export const CONFIG = {
+  DB_URL: 'DB_URL',
+  JWT_SECRET: 'JWT_SECRET',
+  BCRYPT_HASH: 'BCRYPT_HASH'
+}

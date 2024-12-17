@@ -12,9 +12,10 @@ import { AnimeModule } from './anime/anime.module'
 import { AuthModule } from './auth/auth.module'
 import { ConfigModule } from './config/config.module'
 import { DatabaseModule } from './database/database.module'
+import { EpisodeTranslationModule } from './episode-translation/episode-translation.module'
 import { GraphqlModule } from './graphql/graphql.module'
+import { ParserModule } from './parser/parser.module'
 import { UserModule } from './user/user.module'
-import { EpisodeTranslationModule } from './episode-translation/episode-translation.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { EpisodeTranslationModule } from './episode-translation/episode-translat
     AnimeGenreModule,
     AnimeVideoModule,
     AnimeEpisodeModule,
-    EpisodeTranslationModule
+    EpisodeTranslationModule,
+    ParserModule
   ],
   providers: [AnimeReviewService, AnimeReviewResolver, AnimeGenreResolver]
 })

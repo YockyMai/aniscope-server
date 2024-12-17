@@ -79,11 +79,22 @@ type EpisodeTranslation {
   name: String
 }
 
+type Login {
+  accessToken: String!
+  user: User!
+}
+
+type Mutation {
+  login(identifier: String!, password: String!): Login!
+  signup(signupInput: SignupInput!): Signup!
+}
+
 type Query {
   anime(link: String!): Anime!
   episode: AnimeEpisode!
   genre: AnimeGenre!
   genres: [AnimeGenre!]!
+  me: User!
   user(id: Float!): User!
 }
 
@@ -92,6 +103,21 @@ enum Role {
   DEVELOPER
   MODERATOR
   USER
+}
+
+type Signup {
+  accessToken: String!
+  user: User!
+}
+
+input SignupInput {
+  avatar: String
+  banner: String
+  birthday: DateTime
+  email: String!
+  login: String
+  name: String!
+  password: String!
 }
 
 type User {

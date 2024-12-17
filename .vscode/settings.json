@@ -5,6 +5,7 @@
     "datasource",
     "nestjs",
     "QLISO",
+    "Shikimori",
     "trivago"
   ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
