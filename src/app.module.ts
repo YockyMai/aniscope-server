@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common'
+import { ScheduleModule } from '@nestjs/schedule'
 
+import { AnilistApiModule } from './anilist-api/anilist-api.module'
 import { AnimeEpisodeModule } from './anime-episode/anime-episode.module'
 import { AnimeGenreModule } from './anime-genre/anime-genre.module'
 import { AnimeGenreResolver } from './anime-genre/anime-genre.resolver'
@@ -20,6 +22,7 @@ import { UserModule } from './user/user.module'
 @Module({
   imports: [
     DatabaseModule.forRoot(),
+    ScheduleModule.forRoot(),
     GraphqlModule,
     UserModule,
     ConfigModule,
@@ -31,7 +34,8 @@ import { UserModule } from './user/user.module'
     AnimeVideoModule,
     AnimeEpisodeModule,
     EpisodeTranslationModule,
-    ParserModule
+    ParserModule,
+    AnilistApiModule
   ],
   providers: [AnimeReviewService, AnimeReviewResolver, AnimeGenreResolver]
 })

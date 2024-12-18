@@ -41,7 +41,7 @@ export class UserService {
 
   public async create(user: SignupInput) {
     const password = await bcrypt.hash(user.password, 10)
-    console.log(password)
+
     const createdUser = await this.db.user.create({
       data: {
         ...user,

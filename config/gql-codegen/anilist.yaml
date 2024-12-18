@@ -1,0 +1,7 @@
+overwrite: true
+schema: 'https://graphql.anilist.co'
+documents: null
+generates:
+  __generated__/anilist.schema.ts:
+    plugins:
+      - 'typescript'

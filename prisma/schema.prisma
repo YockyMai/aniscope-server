@@ -66,6 +66,8 @@ enum AnimeVideoType {
 
 model Anime {
   id           Int           @id @default(autoincrement())
+  malId        Int           @unique @map("mal_id")
+  alId         Int           @unique @map("al_id")
   title        String
   link         String        @unique
   poster       String
