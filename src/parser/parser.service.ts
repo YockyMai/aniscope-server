@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { PrismaClient } from '@prisma/client'
+import { Genre, PrismaClient } from '@prisma/client'
 import slugify from 'slugify'
+import { AnilistAnime } from 'src/anilist-api/anilist-api.interface'
 import { AnilistApiService } from 'src/anilist-api/anilist-api.service'
 import { AnimeService } from 'src/anime/anime.service'
 import { waitAsync } from 'src/common/utils/wait-async'
@@ -23,82 +24,119 @@ export class ParserService {
 
   @Cron(CronExpression.EVERY_DAY_AT_5AM)
   private async parseAnime() {
-    console.log('parsing anime started')
+    await this.parseAnilist()
 
+    await this.parseShikimori()
+
+    console.log('anime successfully parsed')
+  }
+
+  private async parseAnilist() {
     await this.db.$transaction(async () => {
       try {
         let currentPage = 1
 
-        const shikimoriAnimes: ShikimoriAnime[] = []
-        const fillShikimoriAnimes = async () => {
-          const pageData = await this.shikimoriApi.fetchAnimes(currentPage, 30)
-          shikimoriAnimes.push(...pageData)
+        const animes: AnilistAnime[] = []
+        const fetchAnimes = async () => {
+          const pageData = await this.anilistApi.fetchAnimes(currentPage)
+          animes.push(...pageData)
 
           if (pageData.length && currentPage <= 5) {
             currentPage++
 
-            await fillShikimoriAnimes()
+            await fetchAnimes()
           }
         }
 
-        await fillShikimoriAnimes()
+        await fetchAnimes()
 
-        for (const shikimoriAnime of shikimoriAnimes) {
-          const anilistAnime = await this.anilistApi.fetchAnimeByMalId(
-            shikimoriAnime.malId
+        for (const anime of animes) {
+          const animeGenres = await Promise.all(
+            anime.genres.map(
+              async (name) =>
+                await this.db.genre.upsert({
+                  where: {
+                    name
+                  },
+                  create: {
+                    image: '',
+                    name
+                  },
+                  update: {}
+                })
+            )
+          )
+
+          const animeTags = await Promise.all(
+            anime.tags.map(
+              async (tag) =>
+                await this.db.tag.upsert({
+                  where: {
+                    id: tag.id
+                  },
+                  create: {
+                    name: tag.name,
+                    category: tag.category,
+                    description: tag.description,
+                    id: tag.id,
+                    isAdult: tag.isAdult,
+                    isGeneralSpoiler: tag.isGeneralSpoiler,
+                    isMediaSpoiler: tag.isMediaSpoiler,
+                    rank: tag.rank
+                  },
+                  update: {}
+                })
+            )
           )
 
           await this.db.anime.upsert({
             where: {
-              idShikimori: shikimoriAnime.id
+              idAnilist: anime.id
             },
             create: {
-              idShikimori: shikimoriAnime.id,
-              idAnilist: anilistAnime.id,
-              idMyAnimeList: shikimoriAnime.malId,
-              banner: anilistAnime.bannerImage,
-              color: anilistAnime.coverImage?.color,
-              createdAt: new Date(),
-              description: anilistAnime.description,
-              descriptionRu: anilistAnime.description,
-              title: anilistAnime.title.english!,
-              titleRu: shikimoriAnime.russian,
-              englishTitles: [],
-              japanTitles: [],
-              isLicensed: anilistAnime.isLicensed,
-              format: anilistAnime.format,
-              link: slugify(anilistAnime.title.english!, {
+              id: anime.id,
+              idAnilist: anime.id,
+              idMyAnimeList: anime.idMal,
+              link: slugify(anime.title.english, {
                 lower: true,
                 replacement: '-'
               }),
-              minimalAge: 0,
-              otherTitles: [],
-              poster: anilistAnime.coverImage.large,
+              banner: anime.bannerImage,
+              genres: {
+                connect: animeGenres.map((genre) => ({
+                  animeId_genreId: {
+                    animeId: anime.id,
+                    genreId: genre.id
+                  }
+                }))
+              },
+              tags: {
+                connect: animeTags.map((tag) => ({
+                  tagId_animeId: {
+                    tagId: tag.id,
+                    animeId: anime.id
+                  }
+                }))
+              },
+              scoreAnilist: anime.averageScore,
               score: 0,
-              scoreAnilist: anilistAnime.averageScore,
-              scoreShikimori: shikimoriAnime.score,
-              ratingMpa: '',
-              source: anilistAnime.source,
-              release: new Date(),
-              status: anilistAnime.status,
-              season: anilistAnime.season,
-              synonyms: [],
-              titleJapan: '',
-              updatedAt: new Date()
+              description: anime.description,
+              color: anime.coverImage.color,
+              poster: anime.coverImage.medium,
+              isLicensed: anime.isLicensed,
+              season: anime.season,
+              source: anime.source,
+              format: anime.format,
+              status: anime.status
             },
-            update: {
-              updatedAt: new Date(),
-              scoreAnilist: anilistAnime.meanScore
-            }
+            update: {}
           })
-
-          await waitAsync(3000)
         }
       } catch (error) {
-        console.error('anime parsing error', error)
+        console.error(error)
       }
     })
-
-    console.log('anime successfully parsed')
   }
+
+  private parseShikimori() {}
 }

@@ -100,15 +100,17 @@ model Anime {
   idShikimori       Int?          @unique @map("id_shikimori")
   idMyAnimeList     Int?          @unique @map("id_mal")
   idAnilist         Int           @unique @map("id_al")
+  link              String        @unique
   title             String?
   titleRu           String?       @map("title_ru")
   titleJapan        String?       @map("title_japan")
-  link              String        @unique
+  otherTitles       String[]      @map("other_titles")
+  synonyms          String[]
   poster            String?
   banner            String?
-  format            Format?
   ratingMpa         String?       @map("rating_mpa")
   minimalAge        Int?          @map("minimal_age")
+  format            Format?
   status            Status?
   season            Season?
   source            Source?
@@ -120,16 +122,13 @@ model Anime {
   descriptionRu     String?       @map("description_ru")
   isLicensed        Boolean?      @default(false) @map("is_licensed")
   color             String?       @db.VarChar(8)
-  otherTitles       String[]      @map("other_titles")
-  englishTitles     String[]      @map("english_titles")
-  japanTitles       String[]      @map("japan_titles")
-  synonyms          String[]
   studios           AnimeStudio[]
   genres            AnimeGenre[]
   reviews           AnimeReview[]
   release           DateTime?
   episodes          Episode[]
   videos            AnimeVideo[]
+  tags              AnimeTag[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -158,7 +157,7 @@ model AnimeStudio {
 
 model Genre {
   id         Int          @id @default(autoincrement())
-  name       String
+  name       String       @unique
   image      String
   AnimeGenre AnimeGenre[]
 
@@ -235,24 +234,27 @@ model AnimeVideo {
   @@map("anime_video")
 }
 
-// model AnimeTag {
-//     episodeId     Int
-//   translationId Int
+model AnimeTag {
+  tagId   Int
+  animeId Int
 
-//   episode     Episode     @relation(fields: [episodeId], references: [id])
-//   translation Translation @relation(fields: [translationId], references: [id])
+  tag   Tag   @relation(fields: [tagId], references: [id])
+  anime Anime @relation(fields: [animeId], references: [id])
 
-//   @@id([episodeId, translationId])
-//   @@map("anime_tag")
-// }
+  @@id([tagId, animeId])
+  @@map("anime_tag")
+}
 
 model Tag {
-  id               Int      @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   name             String
   description      String?
   category         String?
   rank             Int?
-  isGeneralSpoiler Boolean? @map("is_general_spoiler")
-  isMediaSpoiler   Boolean? @map("is_media_spoiler")
-  isAdult          Boolean? @map("is_adult")
+  isGeneralSpoiler Boolean?   @map("is_general_spoiler")
+  isMediaSpoiler   Boolean?   @map("is_media_spoiler")
+  isAdult          Boolean?   @map("is_adult")
+  animeTag         AnimeTag[]
+
+  @@map("tag")
 }

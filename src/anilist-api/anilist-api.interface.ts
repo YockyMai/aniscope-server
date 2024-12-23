@@ -1,11 +1,12 @@
-import { Status } from '@prisma/client'
+import { Media } from './anilist-api.schema'
 
 export type AnilistAnime = {
   id: number
-  averageScore: number
-  bannerImage: string
-  status: Status
-  countryOfOrigin: str
+  idMal: number
+  averageScore: Pick<Media, 'averageScore'>['averageScore']
+  bannerImage: Pick<Media, 'bannerImage'>['bannerImage']
+  status: Pick<Media, 'status'>['status']
+  countryOfOrigin: Pick<Media, 'countryOfOrigin'>['countryOfOrigin']
   type: Pick<Media, 'type'>['type']
   description: Pick<Media, 'description'>['description']
   coverImage: Pick<Media, 'coverImage'>['coverImage']
