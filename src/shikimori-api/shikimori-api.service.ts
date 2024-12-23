@@ -1,7 +1,8 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client/core'
 import { Injectable } from '@nestjs/common'
 
-import { GET_ANIMES } from './queries/get-animes'
+import { ANIMES } from './queries/animes'
+import { ShikimoriAnimeResponse } from './shikimori-api.interface'
 
 @Injectable()
 export class ShikimoriApiService {
@@ -19,15 +20,21 @@ export class ShikimoriApiService {
     })
   }
 
-  public async fetchAnimes(page: number) {
-    const result = await this.client.query({
-      query: GET_ANIMES,
+  public async fetchAnimes(page: number, limit?: number) {
+    const result = await this.client.query<{
+      animes: ShikimoriAnimeResponse[]
+    }>({
+      query: ANIMES,
       variables: {
         page,
-        limit: 50
+        limit: limit ?? 50
       }
     })
 
-    return result
+    return result.data.animes.map((anime) => ({
+      ...anime,
+      id: parseInt(anime.id),
+      malId: parseInt(anime.malId)
+    }))
   }
 }

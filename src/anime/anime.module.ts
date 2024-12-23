@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
-import { AnimeService } from './anime.service';
-import { AnimeResolver } from './anime.resolver';
+import { Module } from '@nestjs/common'
+
+import { AnimeResolver } from './anime.resolver'
+import { AnimeService } from './anime.service'
 
 @Module({
-  providers: [AnimeService, AnimeResolver]
+  providers: [AnimeService, AnimeResolver],
+  exports: [AnimeService]
 })
 export class AnimeModule {}

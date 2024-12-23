@@ -1,8 +1,8 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client/core'
 import { Injectable } from '@nestjs/common'
 
-import { Media } from './anilist-api.schema'
-import { GET_MEDIA } from './queries/get-media-by-id'
+import { AnilistAnime } from './anilist-api.interface'
+import { MEDIA_QUERY } from './queries/media'
 
 @Injectable()
 export class AnilistApiService {
@@ -20,12 +20,16 @@ export class AnilistApiService {
     })
   }
 
-  public async fetchAnimeById(id: number) {
-    const result = await this.client.query<Media>({
-      query: GET_MEDIA,
+  public async fetchAnimes(page: number) {
+    const result = await this.client.query({
+      query: MEDIA_QUERY,
       variables: {
-        mediaId: id
+        page,
+        perPage: 50,
+        type: 'ANIME'
       }
     })
+
+    return result.data.Page.media as AnilistAnime[]
   }
 }

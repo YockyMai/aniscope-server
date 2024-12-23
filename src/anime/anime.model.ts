@@ -1,5 +1,5 @@
 import { Field, GraphQLISODateTime, Int, ObjectType } from '@nestjs/graphql'
-import { AnimeSeason, AnimeStatus, AnimeType } from '@prisma/client'
+import { Season, Status, Source, VideoType, Format } from '@prisma/client'
 import { AnimeEpisode } from 'src/anime-episode/anime-episode.model'
 import { AnimeGenre } from 'src/anime-genre/anime-genre.model'
 import { AnimeReview } from 'src/anime-review/anime-review.model'
@@ -22,8 +22,8 @@ export class Anime {
   @Field({ nullable: true })
   banner?: string
 
-  @Field(() => AnimeType)
-  type: AnimeType
+  @Field(() => Source)
+  source: Source
 
   @Field()
   ratingMpa: string
@@ -31,11 +31,11 @@ export class Anime {
   @Field(() => Int)
   minimalAge: number
 
-  @Field(() => AnimeStatus)
-  status: AnimeStatus
+  @Field(() => Status)
+  status: Status
 
-  @Field(() => AnimeSeason)
-  season: AnimeSeason
+  @Field(() => Season)
+  season: Season
 
   @Field(() => Int, { nullable: true })
   rating?: number

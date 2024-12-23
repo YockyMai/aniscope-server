@@ -1,9 +1,17 @@
-import { Module } from '@nestjs/common'
+export type ShikimoriAnimeResponse = {
+  isCensored: boolean
+  id: string
+  malId: string
+  russian: string
+  score: number
+  nextEpisodeAt: string
+}
 
-import { ShikimoriApiService } from './shikimori-api.service'
-
-@Module({
-  providers: [ShikimoriApiService],
-  exports: [ShikimoriApiService]
-})
-export class ShikimoriApiModule {}
+export type ShikimoriAnime = {
+  isCensored: boolean
+  id: number
+  malId: number
+  russian: string
+  score: number
+  nextEpisodeAt: string
+}

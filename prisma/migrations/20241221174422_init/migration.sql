@@ -2,16 +2,19 @@
 CREATE TYPE "role" AS ENUM ('USER', 'DEVELOPER', 'MODERATOR', 'ADMIN');
 
 -- CreateEnum
-CREATE TYPE "anime_type" AS ENUM ('MOVIE');
+CREATE TYPE "format" AS ENUM ('TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC', 'MANGA', 'NOVEL', 'ONE_SHOT');
 
 -- CreateEnum
-CREATE TYPE "anime_status" AS ENUM ('RELEASED');
+CREATE TYPE "Source" AS ENUM ('ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'OTHER', 'NOVEL', 'DOUJINSHI', 'ANIME', 'WEB_NOVEL', 'LIVE_ACTION', 'GAME', 'COMIC', 'MULTIMEDIA_PROJECT', 'PICTURE_BOOK');
 
 -- CreateEnum
-CREATE TYPE "anime_season" AS ENUM ('SUMMER', 'WINTER', 'SPRING', 'FALL');
+CREATE TYPE "status" AS ENUM ('FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED', 'HIATUS');
 
 -- CreateEnum
-CREATE TYPE "AnimeVideoType" AS ENUM ('TRAILER', 'OPENING', 'ENDING', 'OTHER');
+CREATE TYPE "season" AS ENUM ('SUMMER', 'WINTER', 'SPRING', 'FALL');
+
+-- CreateEnum
+CREATE TYPE "video_type" AS ENUM ('TRAILER', 'OPENING', 'ENDING', 'OTHER');
 
 -- CreateTable
 CREATE TABLE "user" (
@@ -31,17 +34,29 @@ CREATE TABLE "user" (
 -- CreateTable
 CREATE TABLE "anime" (
     "id" SERIAL NOT NULL,
+    "shikimori_id" INTEGER NOT NULL,
+    "mal_id" INTEGER NOT NULL,
+    "al_id" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
+    "titleRu" TEXT NOT NULL,
+    "titleJapan" TEXT NOT NULL,
     "link" TEXT NOT NULL,
     "poster" TEXT NOT NULL,
     "banner" TEXT,
-    "type" "anime_type" NOT NULL,
+    "format" "format" NOT NULL,
     "rating_mpa" TEXT NOT NULL,
     "minimal_age" INTEGER NOT NULL,
-    "status" "anime_status" NOT NULL,
-    "season" "anime_season" NOT NULL,
-    "rating" INTEGER,
+    "status" "status" NOT NULL,
+    "season" "season" NOT NULL,
+    "source" "Source" NOT NULL,
+    "score" INTEGER NOT NULL DEFAULT 0,
+    "rating_al" INTEGER NOT NULL DEFAULT 0,
+    "rating_shikimori" INTEGER NOT NULL DEFAULT 0,
+    "trending_al" INTEGER NOT NULL,
     "description" TEXT,
+    "descriptionRu" TEXT,
+    "isLicensed" BOOLEAN NOT NULL DEFAULT false,
+    "color" TEXT,
     "other_titles" TEXT[],
     "english_titles" TEXT[],
     "japan_titles" TEXT[],
@@ -89,7 +104,7 @@ CREATE TABLE "anime_genre" (
 -- CreateTable
 CREATE TABLE "anime_review" (
     "id" SERIAL NOT NULL,
-    "rating" INTEGER NOT NULL,
+    "score" INTEGER NOT NULL,
     "comment" TEXT,
     "verified" BOOLEAN NOT NULL DEFAULT false,
     "userId" INTEGER NOT NULL,
@@ -128,7 +143,7 @@ CREATE TABLE "episode_translation" (
 -- CreateTable
 CREATE TABLE "anime_video" (
     "id" SERIAL NOT NULL,
-    "type" "AnimeVideoType" NOT NULL DEFAULT 'OTHER',
+    "type" "video_type" NOT NULL DEFAULT 'OTHER',
     "image" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "url" TEXT NOT NULL,
@@ -137,11 +152,34 @@ CREATE TABLE "anime_video" (
     CONSTRAINT "anime_video_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Tag" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "category" TEXT,
+    "rank" INTEGER,
+    "is_general_spoiler" BOOLEAN,
+    "is_media_spoiler" BOOLEAN,
+    "is_adult" BOOLEAN,
+
+    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_login_key" ON "user"("login");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "anime_shikimori_id_key" ON "anime"("shikimori_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "anime_mal_id_key" ON "anime"("mal_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "anime_al_id_key" ON "anime"("al_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "anime_link_key" ON "anime"("link");

@@ -18,12 +18,12 @@ type Anime {
   ratingMpa: String!
   release: DateTime!
   reviews: AnimeReview!
-  season: AnimeSeason!
-  status: AnimeStatus!
+  season: Season!
+  source: Source!
+  status: Status!
   studios: [AnimeStudio!]!
   synonyms: [String!]!
   title: String!
-  type: AnimeType!
 }
 
 type AnimeEpisode {
@@ -47,24 +47,9 @@ type AnimeReview {
   verified: Boolean!
 }
 
-enum AnimeSeason {
-  FALL
-  SPRING
-  SUMMER
-  WINTER
-}
-
-enum AnimeStatus {
-  RELEASED
-}
-
 type AnimeStudio {
   id: Int!
   name: String!
-}
-
-enum AnimeType {
-  MOVIE
 }
 
 """
@@ -105,6 +90,13 @@ enum Role {
   USER
 }
 
+enum Season {
+  FALL
+  SPRING
+  SUMMER
+  WINTER
+}
+
 type Signup {
   accessToken: String!
   user: User!
@@ -118,6 +110,32 @@ input SignupInput {
   login: String
   name: String!
   password: String!
+}
+
+enum Source {
+  ANIME
+  COMIC
+  DOUJINSHI
+  GAME
+  LIGHT_NOVEL
+  LIVE_ACTION
+  MANGA
+  MULTIMEDIA_PROJECT
+  NOVEL
+  ORIGINAL
+  OTHER
+  PICTURE_BOOK
+  VIDEO_GAME
+  VISUAL_NOVEL
+  WEB_NOVEL
+}
+
+enum Status {
+  CANCELLED
+  FINISHED
+  HIATUS
+  NOT_YET_RELEASED
+  RELEASING
 }
 
 type User {

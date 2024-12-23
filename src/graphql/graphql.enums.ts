@@ -1,24 +1,21 @@
 import { registerEnumType } from '@nestjs/graphql'
-import {
-  AnimeSeason,
-  AnimeStatus,
-  AnimeType,
-  AnimeVideoType,
-  Role
-} from '@prisma/client'
+import { Format, Source, Status, Season, VideoType, Role } from '@prisma/client'
 
 registerEnumType(Role, {
   name: 'Role'
 })
-registerEnumType(AnimeType, {
-  name: 'AnimeType'
+registerEnumType(Season, {
+  name: 'Season'
 })
-registerEnumType(AnimeStatus, {
-  name: 'AnimeStatus'
+registerEnumType(Status, {
+  name: 'Status'
 })
-registerEnumType(AnimeSeason, {
-  name: 'AnimeSeason'
+registerEnumType(Source, {
+  name: 'Source'
 })
-registerEnumType(AnimeVideoType, {
-  name: 'AnimeVideoType'
+registerEnumType(VideoType, {
+  name: 'VideoType'
+})
+registerEnumType(Format, {
+  name: 'Format'
 })
