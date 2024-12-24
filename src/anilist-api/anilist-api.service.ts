@@ -20,7 +20,7 @@ export class AnilistApiService {
     })
   }
 
-  public async fetchAnimes(page: number) {
+  public async fetchAnimesByPage(page: number) {
     const result = await this.client.query({
       query: MEDIA_QUERY,
       variables: {

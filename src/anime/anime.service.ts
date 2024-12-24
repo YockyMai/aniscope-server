@@ -10,7 +10,7 @@ export class AnimeService {
   async createOne(dto: CreateAnimeDto) {
     const createdAnime = await this.db.anime.create({
       data: {
-        id: dto.alId,
+        id: dto.idAnilist,
         ...dto
       }
     })

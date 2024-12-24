@@ -5,7 +5,7 @@ CREATE TYPE "role" AS ENUM ('USER', 'DEVELOPER', 'MODERATOR', 'ADMIN');
 CREATE TYPE "format" AS ENUM ('TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC', 'MANGA', 'NOVEL', 'ONE_SHOT');
 
 -- CreateEnum
-CREATE TYPE "Source" AS ENUM ('ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'OTHER', 'NOVEL', 'DOUJINSHI', 'ANIME', 'WEB_NOVEL', 'LIVE_ACTION', 'GAME', 'COMIC', 'MULTIMEDIA_PROJECT', 'PICTURE_BOOK');
+CREATE TYPE "source" AS ENUM ('ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'OTHER', 'NOVEL', 'DOUJINSHI', 'ANIME', 'WEB_NOVEL', 'LIVE_ACTION', 'GAME', 'COMIC', 'MULTIMEDIA_PROJECT', 'PICTURE_BOOK');
 
 -- CreateEnum
 CREATE TYPE "status" AS ENUM ('FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED', 'HIATUS');
@@ -34,34 +34,32 @@ CREATE TABLE "user" (
 -- CreateTable
 CREATE TABLE "anime" (
     "id" SERIAL NOT NULL,
-    "shikimori_id" INTEGER NOT NULL,
-    "mal_id" INTEGER NOT NULL,
-    "al_id" INTEGER NOT NULL,
-    "title" TEXT NOT NULL,
-    "titleRu" TEXT NOT NULL,
-    "titleJapan" TEXT NOT NULL,
+    "id_shikimori" INTEGER,
+    "id_mal" INTEGER,
+    "id_al" INTEGER NOT NULL,
     "link" TEXT NOT NULL,
-    "poster" TEXT NOT NULL,
-    "banner" TEXT,
-    "format" "format" NOT NULL,
-    "rating_mpa" TEXT NOT NULL,
-    "minimal_age" INTEGER NOT NULL,
-    "status" "status" NOT NULL,
-    "season" "season" NOT NULL,
-    "source" "Source" NOT NULL,
-    "score" INTEGER NOT NULL DEFAULT 0,
-    "rating_al" INTEGER NOT NULL DEFAULT 0,
-    "rating_shikimori" INTEGER NOT NULL DEFAULT 0,
-    "trending_al" INTEGER NOT NULL,
-    "description" TEXT,
-    "descriptionRu" TEXT,
-    "isLicensed" BOOLEAN NOT NULL DEFAULT false,
-    "color" TEXT,
+    "title" TEXT,
+    "title_ru" TEXT,
+    "title_japan" TEXT,
     "other_titles" TEXT[],
-    "english_titles" TEXT[],
-    "japan_titles" TEXT[],
     "synonyms" TEXT[],
-    "release" TIMESTAMP(3) NOT NULL,
+    "poster" TEXT,
+    "banner" TEXT,
+    "rating_mpa" TEXT,
+    "minimal_age" INTEGER,
+    "format" "format",
+    "status" "status",
+    "season" "season",
+    "source" "source",
+    "score" INTEGER,
+    "score_anilist" INTEGER,
+    "rating_shikimori" INTEGER,
+    "popularity_anilist" INTEGER,
+    "description" TEXT,
+    "description_ru" TEXT,
+    "is_licensed" BOOLEAN DEFAULT false,
+    "color" VARCHAR(8),
+    "release" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -78,10 +76,10 @@ CREATE TABLE "studio" (
 
 -- CreateTable
 CREATE TABLE "anime_studio" (
-    "animeId" INTEGER NOT NULL,
-    "studioId" INTEGER NOT NULL,
+    "anime_id" INTEGER NOT NULL,
+    "studio_id" INTEGER NOT NULL,
 
-    CONSTRAINT "anime_studio_pkey" PRIMARY KEY ("animeId","studioId")
+    CONSTRAINT "anime_studio_pkey" PRIMARY KEY ("anime_id","studio_id")
 );
 
 -- CreateTable
@@ -95,10 +93,10 @@ CREATE TABLE "genre" (
 
 -- CreateTable
 CREATE TABLE "anime_genre" (
-    "animeId" INTEGER NOT NULL,
-    "genreId" INTEGER NOT NULL,
+    "anime_id" INTEGER NOT NULL,
+    "genre_id" INTEGER NOT NULL,
 
-    CONSTRAINT "anime_genre_pkey" PRIMARY KEY ("animeId","genreId")
+    CONSTRAINT "anime_genre_pkey" PRIMARY KEY ("anime_id","genre_id")
 );
 
 -- CreateTable
@@ -119,7 +117,7 @@ CREATE TABLE "episode" (
     "name" TEXT,
     "description" TEXT,
     "image" TEXT,
-    "animeId" INTEGER,
+    "anime_id" INTEGER,
 
     CONSTRAINT "episode_pkey" PRIMARY KEY ("id")
 );
@@ -134,10 +132,10 @@ CREATE TABLE "translation" (
 
 -- CreateTable
 CREATE TABLE "episode_translation" (
-    "episodeId" INTEGER NOT NULL,
-    "translationId" INTEGER NOT NULL,
+    "episode_id" INTEGER NOT NULL,
+    "translation_id" INTEGER NOT NULL,
 
-    CONSTRAINT "episode_translation_pkey" PRIMARY KEY ("episodeId","translationId")
+    CONSTRAINT "episode_translation_pkey" PRIMARY KEY ("episode_id","translation_id")
 );
 
 -- CreateTable
@@ -153,7 +151,15 @@ CREATE TABLE "anime_video" (
 );
 
 -- CreateTable
-CREATE TABLE "Tag" (
+CREATE TABLE "anime_tag" (
+    "tag_id" INTEGER NOT NULL,
+    "anime_id" INTEGER NOT NULL,
+
+    CONSTRAINT "anime_tag_pkey" PRIMARY KEY ("anime_id","tag_id")
+);
+
+-- CreateTable
+CREATE TABLE "tag" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -163,7 +169,7 @@ CREATE TABLE "Tag" (
     "is_media_spoiler" BOOLEAN,
     "is_adult" BOOLEAN,
 
-    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tag_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -173,28 +179,31 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 CREATE UNIQUE INDEX "user_login_key" ON "user"("login");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "anime_shikimori_id_key" ON "anime"("shikimori_id");
+CREATE UNIQUE INDEX "anime_id_shikimori_key" ON "anime"("id_shikimori");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "anime_mal_id_key" ON "anime"("mal_id");
+CREATE UNIQUE INDEX "anime_id_mal_key" ON "anime"("id_mal");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "anime_al_id_key" ON "anime"("al_id");
+CREATE UNIQUE INDEX "anime_id_al_key" ON "anime"("id_al");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "anime_link_key" ON "anime"("link");
 
--- AddForeignKey
-ALTER TABLE "anime_studio" ADD CONSTRAINT "anime_studio_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "anime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "genre_name_key" ON "genre"("name");
 
 -- AddForeignKey
-ALTER TABLE "anime_studio" ADD CONSTRAINT "anime_studio_studioId_fkey" FOREIGN KEY ("studioId") REFERENCES "studio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "anime_studio" ADD CONSTRAINT "anime_studio_anime_id_fkey" FOREIGN KEY ("anime_id") REFERENCES "anime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "anime_genre" ADD CONSTRAINT "anime_genre_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "anime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "anime_studio" ADD CONSTRAINT "anime_studio_studio_id_fkey" FOREIGN KEY ("studio_id") REFERENCES "studio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "anime_genre" ADD CONSTRAINT "anime_genre_genreId_fkey" FOREIGN KEY ("genreId") REFERENCES "genre"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "anime_genre" ADD CONSTRAINT "anime_genre_anime_id_fkey" FOREIGN KEY ("anime_id") REFERENCES "anime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "anime_genre" ADD CONSTRAINT "anime_genre_genre_id_fkey" FOREIGN KEY ("genre_id") REFERENCES "genre"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "anime_review" ADD CONSTRAINT "anime_review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -203,13 +212,19 @@ ALTER TABLE "anime_review" ADD CONSTRAINT "anime_review_userId_fkey" FOREIGN KEY
 ALTER TABLE "anime_review" ADD CONSTRAINT "anime_review_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "anime"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "episode" ADD CONSTRAINT "episode_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "anime"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "episode" ADD CONSTRAINT "episode_anime_id_fkey" FOREIGN KEY ("anime_id") REFERENCES "anime"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "episode_translation" ADD CONSTRAINT "episode_translation_episodeId_fkey" FOREIGN KEY ("episodeId") REFERENCES "episode"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "episode_translation" ADD CONSTRAINT "episode_translation_episode_id_fkey" FOREIGN KEY ("episode_id") REFERENCES "episode"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "episode_translation" ADD CONSTRAINT "episode_translation_translationId_fkey" FOREIGN KEY ("translationId") REFERENCES "translation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "episode_translation" ADD CONSTRAINT "episode_translation_translation_id_fkey" FOREIGN KEY ("translation_id") REFERENCES "translation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "anime_video" ADD CONSTRAINT "anime_video_animeId_fkey" FOREIGN KEY ("animeId") REFERENCES "anime"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "anime_tag" ADD CONSTRAINT "anime_tag_tag_id_fkey" FOREIGN KEY ("tag_id") REFERENCES "tag"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "anime_tag" ADD CONSTRAINT "anime_tag_anime_id_fkey" FOREIGN KEY ("anime_id") REFERENCES "anime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

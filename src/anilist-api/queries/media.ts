@@ -14,6 +14,9 @@ export const MEDIA_QUERY = gql(`
         type
         title {
           english
+          romaji
+          native
+          userPreferred
         }
         
         description

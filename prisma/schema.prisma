@@ -65,6 +65,8 @@ enum Source {
   COMIC
   MULTIMEDIA_PROJECT
   PICTURE_BOOK
+
+  @@map("source")
 }
 
 enum Status {
@@ -145,8 +147,8 @@ model Studio {
 }
 
 model AnimeStudio {
-  animeId  Int
-  studioId Int
+  animeId  Int @map("anime_id")
+  studioId Int @map("studio_id")
 
   anime  Anime  @relation(fields: [animeId], references: [id])
   studio Studio @relation(fields: [studioId], references: [id])
@@ -165,8 +167,8 @@ model Genre {
 }
 
 model AnimeGenre {
-  animeId Int
-  genreId Int
+  animeId Int @map("anime_id")
+  genreId Int @map("genre_id")
 
   anime Anime @relation(fields: [animeId], references: [id])
   genre Genre @relation(fields: [genreId], references: [id])
@@ -196,7 +198,7 @@ model Episode {
   image        String?
   translations EpisodeTranslation[]
   anime        Anime?               @relation(fields: [animeId], references: [id])
-  animeId      Int?
+  animeId      Int?                 @map("anime_id")
 
   @@map("episode")
 }
@@ -211,8 +213,8 @@ model Translation {
 }
 
 model EpisodeTranslation {
-  episodeId     Int
-  translationId Int
+  episodeId     Int @map("episode_id")
+  translationId Int @map("translation_id")
 
   episode     Episode     @relation(fields: [episodeId], references: [id])
   translation Translation @relation(fields: [translationId], references: [id])
@@ -235,13 +237,13 @@ model AnimeVideo {
 }
 
 model AnimeTag {
-  tagId   Int
-  animeId Int
+  tagId   Int @map("tag_id")
+  animeId Int @map("anime_id")
 
   tag   Tag   @relation(fields: [tagId], references: [id])
   anime Anime @relation(fields: [animeId], references: [id])
 
-  @@id([tagId, animeId])
+  @@id([animeId, tagId])
   @@map("anime_tag")
 }
 
