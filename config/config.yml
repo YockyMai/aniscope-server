@@ -1,8 +1,0 @@
-database:
-  url: 'postgresql://postgres:root@localhost:5432/aniscope?schema=public'
-
-jwt:
-  secret: 'elthte-h3klh3kmmb0035mb=1kmbDF<-1249$)(52nbmc134)VV234v42_B,nmelp+_$12m,kv'
-
-bcrypt:
-  hash: 'flrwgkm24599VVN54923nv;_$K(fg20gm)'
