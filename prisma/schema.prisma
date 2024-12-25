@@ -18,19 +18,48 @@ enum Role {
   @@map("role")
 }
 
+enum ActivityAction {
+  POST_CREATED
+  EPSIODE_WATCHED
+  ANIME_STATUS_CHANGED
+  ANIME_REVIEWED
+
+  FRIEND_ADDED
+  SUBCRIBED_TO_USER
+  SUBCRIBED_TO_ANIME
+
+  USER_AVATAR_CHANGED
+  USER_BANNER_CHANGED
+
+  PREMIUM_PURCHASED
+}
+
 model User {
-  id       Int           @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String
-  email    String        @unique
+  email    String    @unique
   password String
   banner   String?
   avatar   String?
   birthday DateTime?
-  login    String?       @unique
-  role     Role          @default(USER)
-  reviews  AnimeReview[]
+  login    String?   @unique
+  role     Role      @default(USER)
+
+  reviews          AnimeReview[]
+  animeList        UserAnime[]
+  episodesComments EpisodeComment[]
+  watchedEpisodes  WatchedEpisode[]
 
   @@map("user")
+}
+
+model Activity {
+  id          Int            @id @default(autoincrement())
+  action      ActivityAction
+  description String
+  date        DateTime
+
+  @@map("activity")
 }
 
 // ANIME MODELS
@@ -97,40 +126,50 @@ enum VideoType {
   @@map("video_type")
 }
 
+enum UserAnimeStatus {
+  COMPLETED
+  DROPPED
+  WATCHING
+
+  @@map("user_anime_status")
+}
+
 model Anime {
-  id                Int           @id @default(autoincrement())
-  idShikimori       Int?          @unique @map("id_shikimori")
-  idMyAnimeList     Int?          @unique @map("id_mal")
-  idAnilist         Int           @unique @map("id_al")
-  link              String        @unique
+  id                Int      @id @default(autoincrement())
+  idShikimori       Int?     @unique @map("id_shikimori")
+  idMyAnimeList     Int?     @unique @map("id_mal")
+  idAnilist         Int      @unique @map("id_al")
+  link              String   @unique
   title             String?
-  titleRu           String?       @map("title_ru")
-  titleJapan        String?       @map("title_japan")
-  otherTitles       String[]      @map("other_titles")
+  titleRu           String?  @map("title_ru")
+  titleJapan        String?  @map("title_japan")
+  otherTitles       String[] @map("other_titles")
   synonyms          String[]
   poster            String?
   banner            String?
-  ratingMpa         String?       @map("rating_mpa")
-  minimalAge        Int?          @map("minimal_age")
+  ratingMpa         String?  @map("rating_mpa")
+  minimalAge        Int?     @map("minimal_age")
   format            Format?
   status            Status?
   season            Season?
   source            Source?
   score             Int?
-  scoreAnilist      Int?          @map("score_anilist")
-  scoreShikimori    Int?          @map("rating_shikimori")
-  popularityAnilist Int?          @map("popularity_anilist")
+  scoreAnilist      Int?     @map("score_anilist")
+  scoreShikimori    Int?     @map("rating_shikimori")
+  popularityAnilist Int?     @map("popularity_anilist")
   description       String?
-  descriptionRu     String?       @map("description_ru")
-  isLicensed        Boolean?      @default(false) @map("is_licensed")
-  color             String?       @db.VarChar(8)
-  studios           AnimeStudio[]
-  genres            AnimeGenre[]
-  reviews           AnimeReview[]
-  release           DateTime?
-  episodes          Episode[]
-  videos            AnimeVideo[]
-  tags              AnimeTag[]
+  descriptionRu     String?  @map("description_ru")
+  isLicensed        Boolean? @default(false) @map("is_licensed")
+  color             String?  @db.VarChar(8)
+
+  studios    AnimeStudio[]
+  genres     AnimeGenre[]
+  reviews    AnimeReview[]
+  release    DateTime?
+  episodes   Episode[]
+  videos     AnimeVideo[]
+  tags       AnimeTag[]
+  usersAnime UserAnime[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -178,15 +217,17 @@ model AnimeGenre {
 }
 
 model AnimeReview {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   score    Int
   comment  String?
-  verified Boolean @default(false)
+  date     DateTime
+  verified Boolean  @default(false)
 
-  user    User   @relation(fields: [userId], references: [id])
-  userId  Int
-  anime   Anime? @relation(fields: [animeId], references: [id])
-  animeId Int?
+  userId  Int @map("user_id")
+  animeId Int @map("anime_id")
+
+  user  User  @relation(fields: [userId], references: [id])
+  anime Anime @relation(fields: [animeId], references: [id])
 
   @@map("anime_review")
 }
@@ -197,10 +238,39 @@ model Episode {
   description  String?
   image        String?
   translations EpisodeTranslation[]
-  anime        Anime?               @relation(fields: [animeId], references: [id])
-  animeId      Int?                 @map("anime_id")
+  anime        Anime                @relation(fields: [animeId], references: [id])
+  animeId      Int                  @map("anime_id")
+
+  comments     EpisodeComment[]
+  usersWatched WatchedEpisode[]
 
   @@map("episode")
+}
+
+model WatchedEpisode {
+  timing Int
+
+  episodeId Int
+  userId    Int
+
+  episode Episode @relation(fields: [episodeId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@id([episodeId, userId])
+  @@map("watched_episode")
+}
+
+model EpisodeComment {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  episodeId Int
+  userId    Int
+
+  episode Episode @relation(fields: [episodeId], references: [id])
+  author  User    @relation(fields: [userId], references: [id])
+
+  @@map("episode_comment")
 }
 
 model Translation {
@@ -230,8 +300,8 @@ model AnimeVideo {
   name  String
   url   String
 
-  anime   Anime? @relation(fields: [animeId], references: [id])
-  animeId Int?
+  anime   Anime @relation(fields: [animeId], references: [id])
+  animeId Int
 
   @@map("anime_video")
 }
@@ -259,4 +329,18 @@ model Tag {
   animeTag         AnimeTag[]
 
   @@map("tag")
+}
+
+model UserAnime {
+  id     Int             @id @default(autoincrement())
+  status UserAnimeStatus
+
+  userId  Int
+  animeId Int
+
+  anime Anime @relation(fields: [animeId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([userId, animeId])
+  @@map("anime_list")
 }
