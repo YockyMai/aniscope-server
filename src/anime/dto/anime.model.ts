@@ -1,10 +1,11 @@
 import { Field, GraphQLISODateTime, Int, ObjectType } from '@nestjs/graphql'
-import { Season, Status, Source, VideoType, Format } from '@prisma/client'
+import { Season, Status, Source } from '@prisma/client'
 import { AnimeEpisode } from 'src/anime-episode/anime-episode.model'
 import { AnimeGenre } from 'src/anime-genre/anime-genre.model'
 import { AnimeReview } from 'src/anime-review/anime-review.model'
 import { AnimeStudio } from 'src/anime-studio/anime-studio.model'
 
+// TODO: actualize model
 @ObjectType()
 export class Anime {
   @Field(() => Int)

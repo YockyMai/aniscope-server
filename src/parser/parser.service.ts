@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { PrismaClient } from '@prisma/client'
-import _ from 'lodash'
-import slugify from 'slugify'
 import { AnilistAnime } from 'src/anilist-api/anilist-api.interface'
 import { AnilistApiService } from 'src/anilist-api/anilist-api.service'
+import { AnimeService } from 'src/anime/anime.service'
 import { waitAsync } from 'src/common/utils/wait-async'
 import { ShikimoriAnime } from 'src/shikimori-api/shikimori-api.interface'
 import { ShikimoriApiService } from 'src/shikimori-api/shikimori-api.service'
@@ -16,6 +15,7 @@ export class ParserService {
   constructor(
     private readonly shikimoriApi: ShikimoriApiService,
     private readonly anilistApi: AnilistApiService,
+    private readonly animeService: AnimeService,
     private readonly db: PrismaClient
   ) {}
 
@@ -25,8 +25,8 @@ export class ParserService {
 
   @Cron(CronExpression.EVERY_DAY_AT_5AM)
   private async parseAnime() {
-    // await this.parseAnilist()
-    // await this.parseShikimori()
+    await this.parseAnilist()
+    await this.parseShikimori()
   }
 
   private async parseAnilist() {
@@ -51,40 +51,8 @@ export class ParserService {
       await fetchAnimes()
 
       for (const anime of animes) {
-        const createdAnime = await this.db.anime.upsert({
-          where: {
-            idAnilist: anime.id
-          },
-          create: {
-            id: anime.id,
-            idAnilist: anime.id,
-            idMyAnimeList: anime.idMal,
-            link: slugify(
-              anime.title.english ??
-                anime.title.userPreferred ??
-                anime.title.native ??
-                anime.id.toString(),
-              {
-                lower: true,
-                replacement: '-'
-              }
-            ),
-            banner: anime.bannerImage,
-            title: anime.title.english ?? anime.title.romaji,
-            titleJapan: anime.title.native,
-            scoreAnilist: anime.averageScore,
-            score: 0,
-            description: anime.description,
-            color: anime.coverImage.color,
-            poster: anime.coverImage.medium,
-            isLicensed: anime.isLicensed,
-            season: anime.season,
-            source: anime.source,
-            format: anime.format,
-            status: anime.status
-          },
-          update: {}
-        })
+        const createdAnime =
+          await this.animeService.createOneFromAnilistData(anime)
 
         // create anime genres
         for (const genre of anime.genres) {
@@ -174,13 +142,8 @@ export class ParserService {
 
     await fetchAnimes()
 
-    // for (const anime of animes) {
-    //   const createdAnime = this.db.anime.upsert({
-    //     where: {
-
-    //       idMyAnimeList: anime.malId,
-    //     }
-    //   })
-    // }
+    for (const anime of animes) {
+      await this.animeService.createOneFromShikimoriData(anime)
+    }
   }
 }

@@ -14,8 +14,8 @@ export class Animes {
 
 @ObjectType()
 class AnimeEdge {
-  @Field(() => [Anime])
-  nodes: Anime[]
+  @Field(() => Anime)
+  node: Anime
 
   @Field()
   cursor: string

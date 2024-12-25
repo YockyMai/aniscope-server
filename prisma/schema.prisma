@@ -32,6 +32,8 @@ enum ActivityAction {
   USER_BANNER_CHANGED
 
   PREMIUM_PURCHASED
+
+  @@map("activity_action")
 }
 
 model User {
@@ -137,8 +139,8 @@ enum UserAnimeStatus {
 model Anime {
   id                Int      @id @default(autoincrement())
   idShikimori       Int?     @unique @map("id_shikimori")
-  idMyAnimeList     Int?     @unique @map("id_mal")
-  idAnilist         Int      @unique @map("id_al")
+  idMyAnimeList     Int?     @unique @map("id_my_anime_list")
+  idAnilist         Int?     @unique @map("id_anilist")
   link              String   @unique
   title             String?
   titleRu           String?  @map("title_ru")

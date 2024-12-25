@@ -8,10 +8,11 @@ export type ShikimoriAnimeResponse = {
 }
 
 export type ShikimoriAnime = {
-  isCensored: boolean
   id: number
-  malId: number
-  russian: string
-  score: number
-  nextEpisodeAt: string
+  isCensored?: boolean
+  malId?: number
+  russian?: string
+  english?: string
+  score?: number
+  nextEpisodeAt?: string
 }
