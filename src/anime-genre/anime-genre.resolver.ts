@@ -1,12 +1,17 @@
 import { Query, Resolver } from '@nestjs/graphql'
 
 import { AnimeGenre } from './anime-genre.model'
+import { AnimeGenreService } from './anime-genre.service'
 
 @Resolver()
 export class AnimeGenreResolver {
+  constructor(private readonly animeGenreService: AnimeGenreService) {}
+
   @Query(() => AnimeGenre)
-  async genre() {}
+  genre() {}
 
   @Query(() => [AnimeGenre])
-  async genres() {}
+  genres() {
+    return this.animeGenreService.findAll()
+  }
 }
